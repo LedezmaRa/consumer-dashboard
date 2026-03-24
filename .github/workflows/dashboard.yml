@@ -1,0 +1,97 @@
+name: Build & Deploy Dashboard
+
+on:
+  # Run automatically every Monday at 8 AM ET (12:00 UTC)
+  schedule:
+    - cron: "0 12 * * 1"
+  # Run manually from the GitHub Actions tab anytime
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only allow one deploy at a time
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Write .env from secrets
+        run: |
+          cat > .env << EOF
+          PROJECT_ROOT=${{ github.workspace }}
+          DATA_DIR=${{ github.workspace }}/data
+          CONSUMER_MANIFEST_PATH=${{ github.workspace }}/consumer_reports_manifest.csv
+          BEA_API_KEY=${{ secrets.BEA_API_KEY }}
+          BLS_API_KEY=${{ secrets.BLS_API_KEY }}
+          HTTP_TIMEOUT_SECONDS=60
+          HTTP_RETRY_ATTEMPTS=3
+          ENABLED_SOURCES=bea,bls,census,federal_reserve_board,new_york_fed,dol,university_of_michigan
+          EOF
+
+      - name: Create data directories
+        run: mkdir -p data/raw data/processed data/state
+
+      - name: Ingest all sources
+        run: |
+          python3 -m consumer_dashboard.cli ingest --source bea
+          python3 -m consumer_dashboard.cli ingest --source bls
+          python3 -m consumer_dashboard.cli ingest --source census
+          python3 -m consumer_dashboard.cli ingest --source federal_reserve_board
+          python3 -m consumer_dashboard.cli ingest --source new_york_fed
+          python3 -m consumer_dashboard.cli ingest --source dol
+          python3 -m consumer_dashboard.cli ingest --source university_of_michigan
+
+      - name: Normalize all sources
+        run: |
+          python3 -m consumer_dashboard.cli normalize --source bea
+          python3 -m consumer_dashboard.cli normalize --source bls
+          python3 -m consumer_dashboard.cli normalize --source census
+          python3 -m consumer_dashboard.cli normalize --source federal_reserve_board
+          python3 -m consumer_dashboard.cli normalize --source new_york_fed
+          python3 -m consumer_dashboard.cli normalize --source dol
+          python3 -m consumer_dashboard.cli normalize --source university_of_michigan
+
+      - name: Derive metrics
+        run: python3 -m consumer_dashboard.cli derive
+
+      - name: Build HTML dashboard
+        run: python3 -m consumer_dashboard.cli dashboard build-html
+
+      - name: Prepare Pages output
+        run: |
+          mkdir -p _site
+          cp data/processed/consumer_dashboard.html _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
