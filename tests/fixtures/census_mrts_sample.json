@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/census/sample/mrts_latest.json",
+    "dataset_key": "mrts",
+    "dataset_label": "Monthly Retail Trade",
+    "fetched_at": "2026-03-23T18:30:00Z"
+  },
+  "response": [
+    ["cell_value","data_type_code","time_slot_id","error_data","category_code","seasonally_adj","geo_level_code","time"],
+    ["734685","SM","0","no","44X72","yes","US","2025-12"],
+    ["0.0","MPCSM","0","no","44X72","yes","US","2025-12"],
+    ["681986","SM","0","no","44Z72","yes","US","2025-12"]
+  ]
+}

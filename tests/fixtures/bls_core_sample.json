@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/bls/sample/bls_core_latest.json",
+    "fetched_at": "2026-03-23T18:10:00Z",
+    "source_id": "bls"
+  },
+  "response": {
+    "Results": {
+      "series": [
+        {
+          "seriesID": "LNS14000000",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "4.4"
+            }
+          ]
+        },
+        {
+          "seriesID": "CES0000000001",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "158466"
+            }
+          ]
+        },
+        {
+          "seriesID": "CES0500000003",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "37.32"
+            }
+          ]
+        },
+        {
+          "seriesID": "CUSR0000SA0",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "327.460"
+            }
+          ]
+        },
+        {
+          "seriesID": "CUSR0000SA0L1E",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M02",
+              "periodName": "February",
+              "value": "321.312"
+            }
+          ]
+        },
+        {
+          "seriesID": "JTS000000000000000JOL",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M01",
+              "periodName": "January",
+              "value": "6946"
+            }
+          ]
+        },
+        {
+          "seriesID": "JTS000000000000000QUR",
+          "data": [
+            {
+              "year": "2026",
+              "period": "M01",
+              "periodName": "January",
+              "value": "2.0"
+            }
+          ]
+        }
+      ]
+    },
+    "message": [],
+    "status": "REQUEST_SUCCEEDED"
+  }
+}
+

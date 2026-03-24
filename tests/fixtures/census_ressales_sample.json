@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/census/sample/ressales_latest.json",
+    "dataset_key": "ressales",
+    "dataset_label": "New Home Sales",
+    "fetched_at": "2026-03-23T18:30:00Z"
+  },
+  "response": [
+    ["cell_value","data_type_code","time_slot_id","error_data","category_code","seasonally_adj","geo_level_code","time"],
+    ["362","TOTAL","0","no","ASOLD","yes","SO","2026-01"],
+    ["587","TOTAL","0","no","ASOLD","yes","US","2026-01"],
+    ["22","E_TOTAL","0","yes","ASOLD","yes","US","2026-01"]
+  ]
+}

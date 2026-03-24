@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "dataset": "NIPA",
+    "fetched_at": "2026-03-23T17:45:00Z",
+    "frequency": "M",
+    "source_id": "bea",
+    "table_name": "T20600",
+    "years": "LAST5"
+  },
+  "response": {
+    "BEAAPI": {
+      "Results": {
+        "Data": [
+          {
+            "CL_UNIT": "Billions of dollars",
+            "DataValue": "25,000.1",
+            "LineDescription": "Personal income",
+            "LineNumber": "1",
+            "METRIC_NAME": "Current Dollars",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Billions of dollars",
+            "DataValue": "21,500.5",
+            "LineDescription": "Disposable personal income",
+            "LineNumber": "2",
+            "METRIC_NAME": "Current Dollars",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Billions of dollars",
+            "DataValue": "19,750.8",
+            "LineDescription": "Personal consumption expenditures (PCE)",
+            "LineNumber": "3",
+            "METRIC_NAME": "Current Dollars",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Percent",
+            "DataValue": "3.6",
+            "LineDescription": "Personal saving as a percentage of disposable personal income",
+            "LineNumber": "6",
+            "METRIC_NAME": "Level",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Index 2017=100",
+            "DataValue": "125.4",
+            "LineDescription": "PCE price index",
+            "LineNumber": "7",
+            "METRIC_NAME": "Index Number",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Chained dollars (2017)",
+            "DataValue": "15,420.2",
+            "LineDescription": "Real disposable personal income",
+            "LineNumber": "8",
+            "METRIC_NAME": "Chained Dollars",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Billions of dollars",
+            "DataValue": "(NA)",
+            "LineDescription": "Personal saving",
+            "LineNumber": "5",
+            "METRIC_NAME": "Current Dollars",
+            "TimePeriod": "2025M11"
+          },
+          {
+            "CL_UNIT": "Billions of dollars",
+            "DataValue": "123.4",
+            "LineDescription": "Some other line we should ignore",
+            "LineNumber": "99",
+            "METRIC_NAME": "Current Dollars",
+            "TimePeriod": "2025M11"
+          }
+        ]
+      }
+    }
+  }
+}
+

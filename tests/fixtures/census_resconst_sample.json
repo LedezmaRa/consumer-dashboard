@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/census/sample/resconst_latest.json",
+    "dataset_key": "resconst",
+    "dataset_label": "New Residential Construction",
+    "fetched_at": "2026-03-23T18:30:00Z"
+  },
+  "response": [
+    ["cell_value","data_type_code","time_slot_id","error_data","category_code","seasonally_adj","geo_level_code","time"],
+    ["1487","TOTAL","0","no","ASTARTS","yes","US","2026-01"],
+    ["1312","TOTAL","0","no","APERMITS","yes","US","2026-01"],
+    ["174","TOTAL","0","no","ASTARTS","yes","MW","2026-01"],
+    ["14","E_TOTAL","0","yes","ASTARTS","yes","US","2026-01"]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l \"/Users/ramonledezma/Downloads/Dashboard Consumer Rerports copy/data/processed/\"*.json)",
+      "Bash(python -c \"from consumer_dashboard.metrics.regime import classify_regime, compute_regime_metrics; print\\(''regime.py imports OK''\\)\")",
+      "Bash(python3 -c \"from consumer_dashboard.metrics.regime import classify_regime, compute_regime_metrics; print\\(''regime.py imports OK''\\)\")",
+      "Bash(python3 -c \"from consumer_dashboard.dashboard.datasets import build_dashboard_data; print\\(''datasets.py imports OK''\\)\")",
+      "Bash(python3 -c \"from consumer_dashboard.dashboard.html import build_dashboard_html; print\\(''html.py imports OK''\\)\")",
+      "Bash(python3 -c \":*)",
+      "Read(//Users/ramonledezma/Downloads/U.S. Consumer Rerports/data/processed/**)",
+      "Bash(DATA_DIR=\"/Users/ramonledezma/Downloads/Dashboard Consumer Rerports copy/data\" PROJECT_ROOT=\"/Users/ramonledezma/Downloads/Dashboard Consumer Rerports copy\" CONSUMER_MANIFEST_PATH=\"/Users/ramonledezma/Downloads/Dashboard Consumer Rerports copy/consumer_reports_manifest.csv\" python3 -c \":*)",
+      "Bash(python3 -m pytest tests/ -x -q)",
+      "Bash(python3 -m pytest tests/unit/test_derive.py tests/unit/test_inflation_metrics.py tests/unit/test_dashboard.py tests/unit/test_registry.py tests/unit/test_settings.py tests/unit/test_state.py -x -q)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(open \"/Users/ramonledezma/Downloads/Dashboard Consumer Rerports copy/data/processed/consumer_dashboard.html\")",
+      "Bash(python3 -c \"from consumer_dashboard.dashboard.html import build_dashboard_html; print\\(''OK''\\)\")",
+      "Bash(python -c \":*)",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -m consumer_dashboard.cli derive)",
+      "Bash(python3 -m consumer_dashboard.cli dashboard build-html)",
+      "Bash(python3 -m consumer_dashboard.cli ingest --source bls)",
+      "Bash(python3 -m consumer_dashboard.cli normalize --source bls)",
+      "Bash(python3 -m consumer_dashboard.cli ingest --source michigan)",
+      "Bash(python3 -m consumer_dashboard.cli ingest --source university_of_michigan)",
+      "Bash(python3 -m consumer_dashboard.cli normalize --source university_of_michigan)",
+      "Bash(curl -s \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=UMCSENT\")",
+      "Bash(python -m consumer_dashboard.cli ingest --source university_of_michigan)",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=UMICH1YINFE\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=INFEXP\")",
+      "Bash(curl -s \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=UMCSENT1YR\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d[''''metadata'''']\\); print\\(d[''''data''''][:3]\\)\")",
+      "Bash(python3 -m consumer_dashboard.cli ingest --source federal_reserve_board)",
+      "Bash(python3 -m consumer_dashboard.cli normalize --source federal_reserve_board)",
+      "Bash(gh auth:*)",
+      "Bash(brew install:*)",
+      "Bash(\"/Users/ramonledezma/Downloads/Dashboard Consumer:*)"
+    ]
+  }
+}

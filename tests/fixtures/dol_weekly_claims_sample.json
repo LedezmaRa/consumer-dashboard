@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/dol/sample/weekly_claims_latest.json",
+    "fetched_at": "2026-03-23T18:45:00Z",
+    "release_date": "2026-03-19",
+    "source_id": "dol"
+  },
+  "summary_text": "In the week ending March 14, the advance figure for seasonally adjusted initial claims was 243,000, an increase of 20,000 from the previous week's unrevised level of 223,000. The 4-week moving average was 236,500, an increase of 2,250 from the previous week's unrevised average of 234,250.",
+  "response_text": "<html><body><p>In the week ending March 14, the advance figure for seasonally adjusted initial claims was 243,000, an increase of 20,000 from the previous week's unrevised level of 223,000. The 4-week moving average was 236,500, an increase of 2,250 from the previous week's unrevised average of 234,250.</p></body></html>"
+}

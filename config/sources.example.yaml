@@ -1,0 +1,25 @@
+defaults:
+  enabled: true
+  retries: 3
+  timeout_seconds: 30
+
+sources:
+  bea:
+    enabled: true
+    acquisition_mode: api
+  bls:
+    enabled: true
+    acquisition_mode: api
+  census:
+    enabled: true
+    acquisition_mode: api
+  federal_reserve_board:
+    enabled: true
+    acquisition_mode: csv_download
+  new_york_fed:
+    enabled: true
+    acquisition_mode: downloadable_data
+  dol:
+    enabled: true
+    acquisition_mode: official_page_or_table
+

@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/bea/sample/pce_price_indexes_latest.json",
+    "dataset": "NIPA",
+    "fetched_at": "2026-03-23T18:00:00Z",
+    "frequency": "M",
+    "source_id": "bea",
+    "table_name": "T20804",
+    "years": "2025,2026"
+  },
+  "response": {
+    "BEAAPI": {
+      "Results": {
+        "Data": [
+          {
+            "CL_UNIT": "Level",
+            "DataValue": "126.512",
+            "LineDescription": "Personal consumption expenditures (PCE)",
+            "LineNumber": "1",
+            "METRIC_NAME": "Fisher Price Index",
+            "TimePeriod": "2026M01"
+          },
+          {
+            "CL_UNIT": "Level",
+            "DataValue": "124.832",
+            "LineDescription": "PCE excluding food and energy",
+            "LineNumber": "25",
+            "METRIC_NAME": "Fisher Price Index",
+            "TimePeriod": "2026M01"
+          },
+          {
+            "CL_UNIT": "Level",
+            "DataValue": "123.100",
+            "LineDescription": "Market-based PCE excluding food and energy",
+            "LineNumber": "31",
+            "METRIC_NAME": "Fisher Price Index",
+            "TimePeriod": "2026M01"
+          },
+          {
+            "CL_UNIT": "Level",
+            "DataValue": "110.000",
+            "LineDescription": "Services",
+            "LineNumber": "13",
+            "METRIC_NAME": "Fisher Price Index",
+            "TimePeriod": "2026M01"
+          }
+        ]
+      }
+    }
+  }
+}

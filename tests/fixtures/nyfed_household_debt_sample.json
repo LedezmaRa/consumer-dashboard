@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "source_id": "new_york_fed",
+    "report_slug": "household_debt_credit",
+    "release_date": "2026-02-10",
+    "report_period": "2025q4"
+  },
+  "tables": {
+    "debt_balance_composition": {
+      "sheet_name": "Page 3 Data",
+      "table_name": "Total Debt Balance and Its Composition",
+      "unit_label": "Trillions of $",
+      "rows": [
+        {
+          "reference_period": "25:Q3",
+          "Mortgage": 12.3,
+          "HE Revolving": 0.39,
+          "Auto Loan": 1.71,
+          "Credit Card": 1.18,
+          "Student Loan": 1.62,
+          "Other": 0.51,
+          "Total": 17.71
+        },
+        {
+          "reference_period": "25:Q4",
+          "Mortgage": 12.41,
+          "HE Revolving": 0.40,
+          "Auto Loan": 1.73,
+          "Credit Card": 1.21,
+          "Student Loan": 1.63,
+          "Other": 0.52,
+          "Total": 17.9
+        }
+      ]
+    },
+    "balance_by_delinquency_status": {
+      "sheet_name": "Page 11 Data",
+      "table_name": "Total Balance by Delinquency Status",
+      "unit_label": "Percent",
+      "rows": [
+        {
+          "reference_period": "25:Q3",
+          "Current": 96.0,
+          "30 days late": 1.3,
+          "60 days late": 0.6,
+          "90 days late": 0.5,
+          "120+ days late": 0.8,
+          "Severely Derogatory": 0.8,
+          "Total": 100.0
+        },
+        {
+          "reference_period": "25:Q4",
+          "Current": 95.8,
+          "30 days late": 1.4,
+          "60 days late": 0.7,
+          "90 days late": 0.6,
+          "120+ days late": 0.8,
+          "Severely Derogatory": 0.7,
+          "Total": 100.0
+        }
+      ]
+    },
+    "ninety_plus_delinquent_balance_rate": {
+      "sheet_name": "Page 12 Data",
+      "table_name": "Percent of Balance 90+ Days Delinquent by Loan Type",
+      "unit_label": "Percent",
+      "rows": [
+        {
+          "reference_period": "25:Q3",
+          "MORTGAGE": 0.78,
+          "HELOC": 0.42,
+          "AUTO": 3.01,
+          "CC": 10.22,
+          "STUDENT LOAN": 6.21,
+          "OTHER": 5.81,
+          "ALL": 2.08
+        },
+        {
+          "reference_period": "25:Q4",
+          "MORTGAGE": 0.81,
+          "HELOC": 0.45,
+          "AUTO": 3.18,
+          "CC": 10.65,
+          "STUDENT LOAN": 6.30,
+          "OTHER": 5.94,
+          "ALL": 2.19
+        }
+      ]
+    },
+    "new_delinquent_balances": {
+      "sheet_name": "Page 13 Data",
+      "table_name": "New Delinquent* Balances by Loan Type",
+      "unit_label": "Percent",
+      "rows": [
+        {
+          "reference_period": "25:Q3",
+          "AUTO": 9.4,
+          "CC": 17.1,
+          "MORTGAGE": 5.2,
+          "HELOC": 0.7,
+          "STUDENT LOAN": 0.5,
+          "OTHER": 1.1,
+          "Total": 34.0
+        },
+        {
+          "reference_period": "25:Q4",
+          "AUTO": 9.9,
+          "CC": 18.3,
+          "MORTGAGE": 5.5,
+          "HELOC": 0.8,
+          "STUDENT LOAN": 0.5,
+          "OTHER": 1.2,
+          "Total": 36.2
+        }
+      ]
+    },
+    "new_serious_delinquent_balances": {
+      "sheet_name": "Page 14 Data",
+      "table_name": "New Seriously Delinquent* Balances by Loan Type",
+      "unit_label": "Percent",
+      "rows": [
+        {
+          "reference_period": "25:Q3",
+          "AUTO": 5.1,
+          "CC": 10.3,
+          "MORTGAGE": 3.4,
+          "HELOC": 0.4,
+          "STUDENT LOAN": 0.2,
+          "OTHER": 0.6,
+          "ALL": 20.0
+        },
+        {
+          "reference_period": "25:Q4",
+          "AUTO": 5.4,
+          "CC": 11.0,
+          "MORTGAGE": 3.6,
+          "HELOC": 0.4,
+          "STUDENT LOAN": 0.2,
+          "OTHER": 0.7,
+          "ALL": 21.3
+        }
+      ]
+    }
+  }
+}

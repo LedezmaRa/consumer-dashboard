@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "artifact_path": "data/raw/federal_reserve_board/sample/z1_household_balance_sheet.json",
+    "fetched_at": "2026-03-23T19:00:00Z",
+    "release_date": "2026-03-19",
+    "report_slug": "financial_accounts_z1",
+    "source_id": "federal_reserve_board",
+    "source_table_name": "B.101.e Balance Sheet of Households and Nonprofit Organizations with Debt and Equity Holdings Detail"
+  },
+  "csv_text": "date,FL152000005.Q,FL152010005.Q,FL154090005.Q,FL154190005.Q,FL152090005.Q\n2025:Q3,205763000,44011500,161751500,21124800,184638200\n2025:Q4,208144000,44238400,163905600,21320400,186823600\n",
+  "data_dictionary": "FL152000005.Q\tHouseholds and nonprofit organizations; total assets\nFL152010005.Q\tHouseholds and nonprofit organizations; nonfinancial assets\nFL154090005.Q\tHouseholds and nonprofit organizations; total financial assets\nFL154190005.Q\tHouseholds and nonprofit organizations; total liabilities\nFL152090005.Q\tHouseholds and nonprofit organizations; net worth\n"
+}

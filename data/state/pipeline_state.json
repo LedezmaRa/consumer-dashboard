@@ -1,0 +1,44 @@
+{
+  "sources": {
+    "bea": {
+      "message": "Normalized 441 BEA observations from 2 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-23T17:54:08.986971+00:00"
+    },
+    "bls": {
+      "message": "Normalized 492 BLS observations from 1 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-24T19:27:17.497324+00:00"
+    },
+    "census": {
+      "message": "Normalized 51 Census observations from 3 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-23T18:20:48.391948+00:00"
+    },
+    "derived": {
+      "message": "Computed 3023 derived observations across 42 series.",
+      "status": "derived",
+      "updated_at": "2026-03-24T19:33:21.066600+00:00"
+    },
+    "dol": {
+      "message": "Normalized 2 DOL observations from 1 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-23T18:32:33.534175+00:00"
+    },
+    "federal_reserve_board": {
+      "message": "Normalized 4206 Federal Reserve Board observations from 3 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-24T19:33:16.511492+00:00"
+    },
+    "new_york_fed": {
+      "message": "Normalized 3120 New York Fed observations from 1 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-23T18:52:43.588429+00:00"
+    },
+    "university_of_michigan": {
+      "message": "Normalized 1246 Michigan SCA observations from 2 raw artifact(s).",
+      "status": "normalized",
+      "updated_at": "2026-03-24T19:33:03.978456+00:00"
+    }
+  }
+}
