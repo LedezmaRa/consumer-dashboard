@@ -39,6 +39,7 @@ def compute_savings_metrics(
     derived.extend(_compute_savings_3m_avg(series_map))
     derived.extend(_compute_savings_yoy_chg(series_map))
     derived.extend(_compute_excess_savings(series_map))
+    derived.extend(_compute_savings_runway(series_map))
     return sorted(derived, key=lambda item: (item.period_date, item.series_id))
 
 
@@ -155,3 +156,65 @@ def _compute_excess_savings(
             )
         )
     return derived
+
+
+def _compute_savings_runway(
+    series_map: dict[str, list[Observation]],
+) -> list[DerivedObservation]:
+    """Savings runway metrics from excess_savings_cumulative_proxy.
+
+    Produces:
+      - excess_savings_monthly_burn_rate   3-month trailing average burn (change per month)
+      - excess_savings_runway_months       months remaining at current burn rate
+    """
+    excess_obs = series_map.get("excess_savings_cumulative_proxy", [])
+    if len(excess_obs) < 4:
+        return []
+
+    sorted_obs = sorted(excess_obs, key=lambda o: o.period_date)
+    levels = [(obs.period_date, float(obs.value)) for obs in sorted_obs]
+
+    # Monthly changes
+    changes = [levels[i][1] - levels[i - 1][1] for i in range(1, len(levels))]
+
+    results: list[DerivedObservation] = []
+    # Start from index 2 in changes (0-based) to have a 3-month window
+    for i in range(2, len(changes)):
+        burn_3m = statistics.mean(changes[i - 2: i + 1])
+        current_level = levels[i + 1][1]
+        base_obs = sorted_obs[i + 1]
+
+        results.append(
+            _derived_from_base(
+                base_obs,
+                series_id="excess_savings_monthly_burn_rate",
+                value=round(burn_3m, 2),
+                report="savings_metrics",
+                unit="billions_of_dollars",
+                source_series_label="Excess Savings Monthly Burn Rate (3M Avg)",
+                source_metric_name="excess_savings_monthly_burn_rate",
+                source_unit_label="billions of dollars per month",
+                input_series=("excess_savings_cumulative_proxy",),
+            )
+        )
+
+        if current_level > 0 and burn_3m < 0:
+            runway = min(60.0, current_level / abs(burn_3m))
+        else:
+            runway = 0.0
+
+        results.append(
+            _derived_from_base(
+                base_obs,
+                series_id="excess_savings_runway_months",
+                value=round(runway, 1),
+                report="savings_metrics",
+                unit="ratio; level",
+                source_series_label="Excess Savings Runway (Months at Current Burn Rate)",
+                source_metric_name="excess_savings_runway_months",
+                source_unit_label="months",
+                input_series=("excess_savings_cumulative_proxy",),
+            )
+        )
+
+    return results

@@ -24,6 +24,8 @@ def _unit_label(unit: str) -> str:
         "fisher price index; level": "Index",
         "real_proxy_index": "Index",
         "ratio; level": "Ratio",
+        "score": "Score",
+        "billions_of_dollars": "Billions of dollars",
     }
     return mapping.get(unit.lower(), unit.replace("_", " ").title()) if unit else "Value"
 
@@ -179,6 +181,7 @@ def _single_axis_chart_svg(
     *,
     axis_label: str = "",
     chart_uid: str = "",
+    reference_lines: list[dict] | None = None,
 ) -> str:
     if not series:
         return '<div class="chart-empty">Not enough history yet.</div>'
@@ -252,6 +255,26 @@ def _single_axis_chart_svg(
             f'<text x="{pad_left}" y="{pad_top - 10}" class="chart-axis chart-axis-title">{escape(axis_label)}</text>'
         )
 
+    # --- Phase 1: Reference lines ---
+    ref_markup = []
+    if reference_lines:
+        for line in reference_lines:
+            line_val = float(line.get("value", 0.0))
+            if line_val < tick_min or line_val > tick_max:
+                continue
+            ry = scale_y(line_val)
+            label = str(line.get("label", ""))
+            style = str(line.get("style", "dashed"))
+            color_class = str(line.get("color_class", "ref-neutral"))
+            ref_markup.append(
+                f'<line x1="{pad_left}" y1="{ry:.2f}" x2="{width - pad_right}" y2="{ry:.2f}" '
+                f'class="chart-ref-line chart-ref-{style} chart-ref-{color_class}" />'
+            )
+            ref_markup.append(
+                f'<text x="{width - pad_right - 4}" y="{ry - 4:.2f}" '
+                f'class="chart-ref-label chart-ref-{color_class}-text" text-anchor="end">{escape(label)}</text>'
+            )
+
     # --- X axis labels (5-7 evenly spaced) ---
     label_points = series[0].get(point_key, [])
     x_label_count = min(7, max(3, len(label_points)))
@@ -289,40 +312,70 @@ def _single_axis_chart_svg(
         if not coords:
             continue
 
-        # Area fill (subtle gradient under line)
-        grad_id = f"{chart_uid}-grad-{index}"
-        area_points = " ".join(f"{x:.2f},{y:.2f}" for x, y in coords)
-        baseline_y = scale_y(tick_min)
-        first_x = coords[0][0]
-        last_x_coord = coords[-1][0]
-        area_markup.append(
-            f'<polygon class="chart-area" fill="url(#{grad_id})" '
-            f'points="{first_x:.2f},{baseline_y:.2f} {area_points} {last_x_coord:.2f},{baseline_y:.2f}" />'
-        )
+        is_ghost = bool(item.get("is_ghost", False))
+
+        # Area fill (subtle gradient under line) — skip for ghost series
+        if not is_ghost:
+            grad_id = f"{chart_uid}-grad-{index}"
+            area_points = " ".join(f"{x:.2f},{y:.2f}" for x, y in coords)
+            baseline_y = scale_y(tick_min)
+            first_x = coords[0][0]
+            last_x_coord = coords[-1][0]
+            area_markup.append(
+                f'<polygon class="chart-area" fill="url(#{grad_id})" '
+                f'points="{first_x:.2f},{baseline_y:.2f} {area_points} {last_x_coord:.2f},{baseline_y:.2f}" />'
+            )
 
         # Line
         polyline = " ".join(f"{x:.2f},{y:.2f}" for x, y in coords)
-        line_markup.append(
-            f'<polyline class="chart-line series-color-{index % 10}" points="{polyline}" />'
-        )
+        if is_ghost:
+            line_markup.append(
+                f'<polyline class="chart-line chart-line-ghost series-color-{index % 10}" points="{polyline}" />'
+            )
+        else:
+            line_markup.append(
+                f'<polyline class="chart-line series-color-{index % 10}" points="{polyline}" />'
+            )
 
         # Data point dots
+        latest_delta = item.get("latest_delta")
         for pi, (x, y) in enumerate(coords):
             raw_val = float(points[pi]["value"])
             formatted_val = _smart_y_format(raw_val, representative_unit if mode != "rebased" else "", data_range)
             label_text = str(points[pi].get("label", ""))
-            dot_markup.append(
-                f'<circle class="chart-dot series-color-{index % 10}" '
-                f'cx="{x:.2f}" cy="{y:.2f}" r="3" '
-                f'data-series="{index}" data-label="{escape(label_text)}" '
-                f'data-value="{escape(formatted_val)}" '
-                f'data-title="{escape(str(item.get("title", "")))}" />'
-            )
+            is_last_point = (pi == len(points) - 1)
+            if is_last_point and latest_delta and not is_ghost:
+                dot_markup.append(
+                    f'<circle class="chart-dot chart-dot-latest series-color-{index % 10}" '
+                    f'cx="{x:.2f}" cy="{y:.2f}" r="5" '
+                    f'data-series="{index}" data-label="{escape(label_text)}" '
+                    f'data-value="{escape(formatted_val)}" '
+                    f'data-title="{escape(str(item.get("title", "")))}" />'
+                )
+                delta_display = str(latest_delta.get("display", ""))
+                is_notable = bool(latest_delta.get("is_notable", False))
+                badge_class = "chart-delta-notable" if is_notable else "chart-delta-badge"
+                badge_y = y - 20 if y > 40 else y + 8
+                text_y = y - 9 if y > 40 else y + 19
+                dot_markup.append(
+                    f'<rect x="{x - 18:.2f}" y="{badge_y:.2f}" width="36" height="14" rx="3" '
+                    f'class="{badge_class}" />'
+                    f'<text x="{x:.2f}" y="{text_y:.2f}" class="chart-delta-text" text-anchor="middle">{escape(delta_display)}</text>'
+                )
+            else:
+                dot_markup.append(
+                    f'<circle class="chart-dot series-color-{index % 10}" '
+                    f'cx="{x:.2f}" cy="{y:.2f}" r="3" '
+                    f'data-series="{index}" data-label="{escape(label_text)}" '
+                    f'data-value="{escape(formatted_val)}" '
+                    f'data-title="{escape(str(item.get("title", "")))}" />'
+                )
 
-        # Latest value callout (boxed)
-        last_x_val, last_y_val = coords[-1]
-        latest_display = str(item.get("rebased_latest_display" if mode == "rebased" else "raw_latest_display", ""))
-        end_label_raw.append((last_y_val, f"{item.get('title', '')}  {latest_display}", index))
+        # Latest value callout (boxed) — skip for ghost series
+        if not is_ghost:
+            last_x_val, last_y_val = coords[-1]
+            latest_display = str(item.get("rebased_latest_display" if mode == "rebased" else "raw_latest_display", ""))
+            end_label_raw.append((last_y_val, f"{item.get('title', '')}  {latest_display}", index))
 
     # Anti-collision on end labels
     resolved = _resolve_label_positions(end_label_raw, min_gap=15, pad_top=pad_top, pad_bottom=height - pad_bottom)
@@ -356,6 +409,7 @@ def _single_axis_chart_svg(
         + "".join(defs)
         + "".join(grid_markup)
         + "".join(x_ticks)
+        + "".join(ref_markup)
         + "".join(area_markup)
         + "".join(line_markup)
         + "".join(dot_markup)
@@ -590,7 +644,11 @@ def _render_raw_chart_views(chart: dict[str, object]) -> str:
 
 
 def _multi_line_chart_svg(chart: dict[str, object], mode: str) -> str:
-    return _single_axis_chart_svg(chart.get("series", []), mode)
+    return _single_axis_chart_svg(
+        chart.get("series", []),
+        mode,
+        reference_lines=chart.get("reference_lines"),
+    )
 
 
 def _sparkline_svg(history: list[dict[str, object]], tone: str = "neutral") -> str:
@@ -688,6 +746,27 @@ def _render_chart_panel(chart: dict[str, object], chart_id: str) -> str:
     default_mode = str(chart.get("default_mode", "rebased"))
     rebased_active = " active" if default_mode == "rebased" else ""
     raw_active = " active" if default_mode == "raw" else ""
+
+    # Phase 4: runway annotation
+    runway_html = ""
+    runway_annotation = chart.get("runway_annotation")
+    if runway_annotation:
+        tone = str(runway_annotation.get("tone", "neutral"))
+        label = str(runway_annotation.get("label", ""))
+        runway_html = f'<p class="chart-runway-callout chart-runway-{escape(tone)}">{escape(label)}</p>'
+
+    # Phase 5: lead-lag annotation
+    lead_lag_html = ""
+    lead_lag_annotation = chart.get("lead_lag_annotation")
+    if lead_lag_annotation:
+        lead_lag_html = f'<p class="chart-lead-lag-note">&#x27F3; {escape(str(lead_lag_annotation))}</p>'
+
+    # Phase 6: cohort note
+    cohort_html = ""
+    cohort_note = chart.get("cohort_note")
+    if cohort_note:
+        cohort_html = f'<p class="chart-cohort-note">{escape(str(cohort_note))}</p>'
+
     return f"""
     <div class="chart-panel">
       <div class="chart-head">
@@ -712,6 +791,9 @@ def _render_chart_panel(chart: dict[str, object], chart_id: str) -> str:
       <div class="chart-view{raw_active}" data-chart-view="{escape(chart_id)}" data-mode="raw">
         {_render_raw_chart_views(chart)}
       </div>
+      {runway_html}
+      {lead_lag_html}
+      {cohort_html}
     </div>
     """
 
@@ -1264,6 +1346,32 @@ def _render_html(payload: dict[str, object]) -> str:
     .chart-axis-right-title {{
       text-anchor: end;
     }}
+    /* --- Phase 1: Reference lines --- */
+    .chart-ref-line {{ stroke-width: 1.5; fill: none; }}
+    .chart-ref-dashed {{ stroke-dasharray: 5,3; }}
+    .chart-ref-solid {{ stroke-dasharray: none; }}
+    .chart-ref-ref-target {{ stroke: #22c55e; opacity: 0.8; }}
+    .chart-ref-ref-warning {{ stroke: #f59e0b; opacity: 0.8; }}
+    .chart-ref-ref-neutral {{ stroke: #94a3b8; opacity: 0.6; }}
+    .chart-ref-label {{ font-size: 9px; fill: #94a3b8; }}
+    .chart-ref-ref-target-text {{ fill: #22c55e; opacity: 0.9; }}
+    .chart-ref-ref-warning-text {{ fill: #f59e0b; opacity: 0.9; }}
+    .chart-ref-ref-neutral-text {{ fill: #94a3b8; }}
+    /* --- Phase 2: Delta badges --- */
+    .chart-dot-latest {{ stroke-width: 2; }}
+    .chart-delta-badge {{ fill: #1e293b; opacity: 0.85; }}
+    .chart-delta-notable {{ fill: #7c3aed; opacity: 0.9; }}
+    .chart-delta-text {{ font-size: 9px; fill: #f1f5f9; font-weight: 600; }}
+    /* --- Phase 4: Runway callout --- */
+    .chart-runway-callout {{ font-size: 12px; padding: 6px 12px; border-radius: 6px; margin-top: 6px; }}
+    .chart-runway-positive {{ background: rgba(34,197,94,0.1); color: #86efac; border-left: 3px solid #22c55e; }}
+    .chart-runway-neutral {{ background: rgba(245,158,11,0.08); color: #fde68a; border-left: 3px solid #f59e0b; }}
+    .chart-runway-caution {{ background: rgba(239,68,68,0.1); color: #fca5a5; border-left: 3px solid #ef4444; }}
+    /* --- Phase 5: Lead-lag note --- */
+    .chart-lead-lag-note {{ font-size: 11px; color: #94a3b8; margin-top: 4px; font-style: italic; }}
+    .chart-line-ghost {{ stroke-dasharray: 6,4; opacity: 0.4; stroke-width: 1.5; fill: none; }}
+    /* --- Phase 6: Cohort note --- */
+    .chart-cohort-note {{ font-size: 12px; color: var(--muted); margin-top: 6px; padding: 6px 12px; border-left: 3px solid rgba(24,36,38,0.15); font-style: italic; }}
     /* --- Chart lines --- */
     .chart-line {{
       fill: none;

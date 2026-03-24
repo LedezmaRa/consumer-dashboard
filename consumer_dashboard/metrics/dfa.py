@@ -29,6 +29,7 @@ def compute_dfa_metrics(
     derived: list[DerivedObservation] = []
     derived.extend(_compute_wealth_concentration_ratio(series_map))
     derived.extend(_compute_bottom50_yoy(series_map))
+    derived.extend(_compute_liabilities_to_assets_ratio(series_map))
     return sorted(derived, key=lambda item: (item.period_date, item.series_id))
 
 
@@ -82,3 +83,38 @@ def _compute_bottom50_yoy(
         report="dfa_metrics",
         metric_name="year_over_year_pct_change",
     )
+
+
+def _compute_liabilities_to_assets_ratio(
+    series_map: dict[str, list[Observation]],
+) -> list[DerivedObservation]:
+    """Household total liabilities / total assets ratio.
+
+    Rising ratio = deteriorating balance sheet even if net worth rises nominally.
+    """
+    liab_obs = series_map.get("household_total_liabilities", [])
+    assets_obs = series_map.get("household_total_assets", [])
+    if not liab_obs or not assets_obs:
+        return []
+
+    assets_by_period = {obs.period_date: float(obs.value) for obs in assets_obs}
+    results: list[DerivedObservation] = []
+    for obs in liab_obs:
+        assets_val = assets_by_period.get(obs.period_date)
+        if assets_val is None or assets_val == 0:
+            continue
+        ratio = float(obs.value) / assets_val
+        results.append(
+            _derived_from_base(
+                obs,
+                series_id="household_liabilities_to_assets_ratio",
+                value=round(ratio, 4),
+                unit="ratio; level",
+                report="financial_accounts_z1",
+                source_series_label="Household Liabilities to Assets Ratio",
+                source_metric_name="liabilities_to_assets_ratio",
+                source_unit_label="ratio",
+                input_series=("household_total_liabilities", "household_total_assets"),
+            )
+        )
+    return results

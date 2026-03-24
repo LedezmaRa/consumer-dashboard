@@ -16,9 +16,9 @@
       "updated_at": "2026-03-23T18:20:48.391948+00:00"
     },
     "derived": {
-      "message": "Computed 3023 derived observations across 42 series.",
+      "message": "Computed 3545 derived observations across 47 series.",
       "status": "derived",
-      "updated_at": "2026-03-24T19:33:21.066600+00:00"
+      "updated_at": "2026-03-24T21:51:09.371020+00:00"
     },
     "dol": {
       "message": "Normalized 2 DOL observations from 1 raw artifact(s).",

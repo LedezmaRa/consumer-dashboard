@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from consumer_dashboard.metrics.common import build_series_map, compute_deflated_level_proxy, compute_pct_change
+from consumer_dashboard.metrics.common import _derived_from_base, build_series_map, compute_deflated_level_proxy, compute_pct_change
 from consumer_dashboard.models.observation import DerivedObservation, Observation
 
 
@@ -52,4 +52,40 @@ def compute_real_spending_metrics(
             metric_name="year_over_year_pct_change",
         )
     )
+
+    # Second-pass: spending_income_gap depends on real_personal_spending_yoy_pct
+    # and real_disposable_personal_income_yoy_pct (may already be in series_map
+    # if called from second pass in derive.py, or computed here if augmented)
+    derived.extend(_compute_spending_income_gap(augmented_series_map))
+
     return sorted(derived, key=lambda item: (item.period_date, item.series_id))
+
+
+def _compute_spending_income_gap(series_map: dict) -> list[DerivedObservation]:
+    """Spending YoY minus income YoY — positive gap signals late-cycle behavior."""
+    spending_obs = series_map.get("real_personal_spending_yoy_pct", [])
+    income_obs = series_map.get("real_disposable_personal_income_yoy_pct", [])
+    if not spending_obs or not income_obs:
+        return []
+
+    income_by_period = {obs.period_date: float(obs.value) for obs in income_obs}
+    results: list[DerivedObservation] = []
+    for obs in spending_obs:
+        income_val = income_by_period.get(obs.period_date)
+        if income_val is None:
+            continue
+        gap_value = float(obs.value) - income_val
+        results.append(
+            _derived_from_base(
+                obs,
+                series_id="spending_income_gap",
+                value=round(gap_value, 3),
+                unit="percent",
+                report="real_spending_metrics",
+                source_series_label="Real Spending vs Income YoY Gap",
+                source_metric_name="spread",
+                source_unit_label="percentage points",
+                input_series=("real_personal_spending_yoy_pct", "real_disposable_personal_income_yoy_pct"),
+            )
+        )
+    return results

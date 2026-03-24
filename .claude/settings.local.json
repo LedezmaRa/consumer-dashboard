@@ -33,7 +33,10 @@
       "Bash(python3 -m consumer_dashboard.cli normalize --source federal_reserve_board)",
       "Bash(gh auth:*)",
       "Bash(brew install:*)",
-      "Bash(\"/Users/ramonledezma/Downloads/Dashboard Consumer:*)"
+      "Bash(\"/Users/ramonledezma/Downloads/Dashboard Consumer:*)",
+      "Bash(gh repo:*)",
+      "Bash(open \"https://github.com/LedezmaRa/consumer-dashboard/settings/pages\")",
+      "Bash(open \"https://github.com/LedezmaRa/consumer-dashboard/settings/secrets/actions/new\")"
     ]
   }
 }

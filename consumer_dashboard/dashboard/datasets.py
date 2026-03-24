@@ -115,6 +115,35 @@ CARD_SPECS = {
         "title": "Bottom 50% Net Worth YoY",
         "why": "The most sensitive indicator of whether the median household is gaining or losing financial resilience. Falling bottom-50% net worth is a leading indicator of broad consumer stress even when aggregate numbers look healthy.",
     },
+    # Chart improvement phases: new computed series
+    "spending_income_gap": {
+        "title": "Spending vs Income Gap",
+        "why": "When spending growth exceeds income growth (positive gap), households are funding consumption from savings or debt — a late-cycle warning. Sustained negative readings are healthy.",
+    },
+    "delinquency_acceleration": {
+        "title": "Delinquency Acceleration",
+        "why": "The rate-of-change of the delinquency rate. Even a low delinquency level is concerning if it is accelerating rapidly — this series catches the inflection before the level looks alarming.",
+    },
+    "household_liabilities_to_assets_ratio": {
+        "title": "Liabilities / Assets Ratio",
+        "why": "When liabilities grow faster than assets, the household balance sheet deteriorates even if net worth is rising in nominal terms. Rising ratio = increasing financial fragility.",
+    },
+    "excess_savings_monthly_burn_rate": {
+        "title": "Excess Savings Burn Rate ($/mo)",
+        "why": "The monthly pace at which the pandemic savings buffer is being depleted. Accelerating negative burn rate means the cushion is shrinking faster.",
+    },
+    "excess_savings_runway_months": {
+        "title": "Savings Buffer Runway (Months)",
+        "why": "At the current burn rate, how many months of excess savings remain. When this falls below 6 months, households lose their pandemic buffer and spending becomes income-constrained.",
+    },
+    "dfa_top1_to_bottom50_ratio": {
+        "title": "Top 1% / Bottom 50% Wealth Ratio",
+        "why": "How many times larger is top-1% wealth vs bottom-50%? When this ratio rises, aggregate consumer data increasingly reflects a small group, not most households.",
+    },
+    "cohort_stress_index": {
+        "title": "Cohort Stress Index",
+        "why": "A composite signal combining bottom-50% wealth direction and card delinquency, normalized to a z-score. Above 0.5 means the bottom half of households is under above-average stress.",
+    },
     # Phase 6: housing
     "shelter_affordability_squeeze": {
         "title": "Shelter Affordability Squeeze",
@@ -152,6 +181,7 @@ SECTION_SPECS = [
         ],
         "chart_title": "Fast Read Trendboard",
         "chart_note": "Rebased to 100 at the start of the visible window so unlike series can be compared directionally.",
+        "chart_reference_lines": [{"value": 0.0, "label": "Zero", "style": "dashed", "color_class": "ref-neutral"}],
         "report_ids": ["jobs_report", "inflation_metrics", "real_spending_metrics", "household_debt_credit"],
     },
     {
@@ -172,6 +202,8 @@ SECTION_SPECS = [
             "savings_rate_3m_avg",
             "savings_rate_yoy_chg",
             "excess_savings_cumulative_proxy",
+            # Chart improvement phases
+            "excess_savings_runway_months",
         ],
         "chart_series_ids": [
             "unemployment_rate",
@@ -181,6 +213,13 @@ SECTION_SPECS = [
         ],
         "chart_title": "Labor and Cash Flow Trajectory",
         "chart_note": "Directional view across labor tightness, real wages, real income, and claims.",
+        "chart_reference_lines": [
+            {"value": 5.0, "label": "Labor Slack", "style": "dashed", "color_class": "ref-warning"},
+            {"value": 0.0, "label": "Zero", "style": "dashed", "color_class": "ref-neutral"},
+        ],
+        "chart_lead_lag_pairs": [
+            {"leading_series": "jolts_job_openings", "lagging_series": "unemployment_rate", "lead_months": 6, "annotation": "JOLTS openings historically lead unemployment by 1–2 quarters"}
+        ],
         "report_ids": ["jobs_report", "jolts", "initial_jobless_claims", "personal_income_outlays", "labor_metrics"],
     },
     {
@@ -211,6 +250,10 @@ SECTION_SPECS = [
         ],
         "chart_title": "Inflation Scoreboard",
         "chart_note": "Shelter drives roughly a third of core CPI. Tracking it alongside services tells you whether the inflation problem is fading (shelter mean-reverts) or shifting to a stickier source (services).",
+        "chart_reference_lines": [
+            {"value": 2.0, "label": "Fed Target", "style": "solid", "color_class": "ref-target"},
+            {"value": 3.5, "label": "Unanchored Risk", "style": "dashed", "color_class": "ref-warning"},
+        ],
         "report_ids": ["cpi", "personal_income_outlays", "inflation_metrics", "real_income_metrics", "labor_metrics"],
     },
     {
@@ -232,9 +275,11 @@ SECTION_SPECS = [
             "real_disposable_personal_income_yoy_pct",
             "real_wage_growth",
             "cpi_headline_yoy_pct",
+            "spending_income_gap",
         ],
         "chart_title": "Spending Power Versus Spending Behavior",
         "chart_note": "Real spending should be interpreted alongside real income and inflation, not in isolation.",
+        "chart_reference_lines": [{"value": 0.0, "label": "Zero Growth", "style": "dashed", "color_class": "ref-neutral"}],
         "report_ids": [
             "personal_income_outlays",
             "retail_sales",
@@ -266,15 +311,19 @@ SECTION_SPECS = [
             "household_credit_card_balance_yoy_pct",
             "household_credit_card_90_plus_delinquent_rate",
             "household_auto_loan_90_plus_delinquent_rate",
+            # Chart improvement phases
+            "household_liabilities_to_assets_ratio",
         ],
         "chart_series_ids": [
             "household_debt_90_plus_delinquent_rate",
             "household_credit_card_90_plus_delinquent_rate",
             "household_auto_loan_90_plus_delinquent_rate",
             "consumer_credit_revolving_yoy_pct",
+            "delinquency_acceleration",
         ],
         "chart_title": "Stress Signals",
         "chart_note": "Delinquency and credit growth are shown alongside claims so level, velocity, and loan-type breakdowns can be read together.",
+        "chart_reference_lines": [{"value": 3.5, "label": "Elevated", "style": "dashed", "color_class": "ref-warning"}],
         "report_ids": ["initial_jobless_claims", "consumer_credit_g19", "financial_accounts_z1", "household_debt_credit"],
     },
     {
@@ -295,13 +344,21 @@ SECTION_SPECS = [
             "dfa_net_worth_bottom50pct",
             "dfa_wealth_concentration_ratio",
             "dfa_bottom50_net_worth_yoy_pct",
+            # Chart improvement phases
+            "dfa_top1_to_bottom50_ratio",
+            "cohort_stress_index",
         ],
         "chart_series_ids": [
             "dfa_wealth_concentration_ratio",
             "dfa_bottom50_net_worth_yoy_pct",
+            # Chart improvement phases
+            "dfa_top1_to_bottom50_ratio",
+            "cohort_stress_index",
         ],
         "chart_title": "Wealth Distribution Dynamics",
         "chart_note": "Wealth concentration ratio shows how many times larger the top 1% wealth stock is vs the bottom 50%. Bottom-50% net worth YoY reveals whether the median household's financial resilience is growing or shrinking.",
+        "chart_reference_lines": [{"value": 0.0, "label": "Zero Growth", "style": "dashed", "color_class": "ref-neutral"}],
+        "chart_cohort_note": "Aggregate consumer data may overstate household health when the cohort stress index is elevated. The bottom 50% have minimal financial buffer and respond quickly to income or wealth shocks.",
         "report_ids": ["distributional_financial_accounts"],
     },
     {
@@ -331,6 +388,7 @@ SECTION_SPECS = [
         ],
         "chart_title": "Housing Pressure and Affordability",
         "chart_note": "Shelter affordability squeeze shows when housing costs outrun income. The equity extraction proxy reveals whether homeowners are drawing down equity — a late-cycle pattern.",
+        "chart_reference_lines": [{"value": 0.0, "label": "No Squeeze", "style": "dashed", "color_class": "ref-neutral"}],
         "report_ids": ["housing_starts_permits", "new_home_sales", "housing_metrics"],
     },
     {
@@ -354,6 +412,13 @@ SECTION_SPECS = [
         ],
         "chart_title": "Consumer Psychology Dashboard",
         "chart_note": "Sentiment index (left scale, rebased) vs inflation expectations. When the gap between short and long-run expectations widens, it signals anchoring risk.",
+        "chart_reference_lines": [
+            {"value": 2.0, "label": "Fed Target", "style": "solid", "color_class": "ref-target"},
+            {"value": 3.5, "label": "Unanchored Risk", "style": "dashed", "color_class": "ref-warning"},
+        ],
+        "chart_lead_lag_pairs": [
+            {"leading_series": "michigan_sentiment_index", "lagging_series": "real_personal_spending_yoy_pct", "lead_months": 6, "annotation": "Sentiment historically leads real spending by 1–2 quarters"}
+        ],
         "report_ids": ["michigan_sentiment"],
     },
 ]
@@ -1049,6 +1114,13 @@ def _tone_for_series(series_id: str, value: float) -> str:
         "shelter_affordability_squeeze": (0.5, 2.0),
         # Phase 7: DFA (low is good = lower concentration ratio)
         "dfa_wealth_concentration_ratio": (20.0, 30.0),
+        # Chart improvement phases
+        "spending_income_gap": (0.5, 1.5),
+        "delinquency_acceleration": (0.05, 0.15),
+        "household_liabilities_to_assets_ratio": (0.13, 0.16),
+        "cohort_stress_index": (0.0, 0.5),
+        "dfa_top1_to_bottom50_ratio": (25.0, 35.0),
+        "excess_savings_monthly_burn_rate": (-5.0, -20.0),
     }
     high_is_good = {
         "real_wage_growth": (1.0, 0.0),
@@ -1061,6 +1133,8 @@ def _tone_for_series(series_id: str, value: float) -> str:
         "housing_starts_to_permits_ratio": (0.85, 0.75),
         # Phase 5: sentiment
         "michigan_sentiment_index": (80.0, 70.0),
+        # Chart improvement phases
+        "excess_savings_runway_months": (12.0, 6.0),
     }
     if series_id in low_is_good:
         good, neutral = low_is_good[series_id]
@@ -1131,7 +1205,11 @@ def _build_chart(
     title: str,
     note: str,
     default_mode: str = "rebased",
+    reference_lines: list[dict] | None = None,
+    lead_lag_pairs: list[dict] | None = None,
+    cohort_note: str | None = None,
 ) -> dict[str, object]:
+    import statistics as _statistics
     series_list = []
     for series_id in chart_series_ids:
         metric = _build_metric(series_map, series_id, history_count=18)
@@ -1147,6 +1225,35 @@ def _build_chart(
             }
             for item in history
         ]
+
+        # Phase 2: compute latest_delta annotation
+        raw_vals = [item["value"] for item in history]
+        monthly_deltas = [raw_vals[i] - raw_vals[i - 1] for i in range(1, len(raw_vals))]
+        if len(monthly_deltas) >= 6:
+            delta_mean = _statistics.mean(monthly_deltas)
+            delta_stdev = _statistics.stdev(monthly_deltas)
+            current_delta = monthly_deltas[-1] if monthly_deltas else 0.0
+            is_notable = delta_stdev > 0 and abs(current_delta - delta_mean) > delta_stdev
+        else:
+            current_delta = monthly_deltas[-1] if monthly_deltas else 0.0
+            is_notable = False
+
+        formatter = _infer_formatter(series_id, _latest(series_map, series_id))
+        if formatter.startswith("percent"):
+            delta_display = f"{current_delta:+.2f}pp"
+        elif formatter == "claims_k":
+            delta_display = f"{current_delta / 1000:+.0f}k"
+        elif formatter in ("thousands_to_m",):
+            delta_display = f"{current_delta / 1000:+.1f}M"
+        else:
+            delta_display = f"{current_delta:+.1f}"
+
+        latest_delta = {
+            "display": delta_display,
+            "is_notable": is_notable,
+            "raw_delta": current_delta,
+        }
+
         series_list.append(
             {
                 "series_id": series_id,
@@ -1157,13 +1264,69 @@ def _build_chart(
                 "rebased_latest_display": f"{rebased_points[-1]['value']:.1f}",
                 "raw_points": raw_points,
                 "rebased_points": rebased_points,
+                "latest_delta": latest_delta,
             }
         )
+
+    # Phase 5: process lead-lag ghost series
+    lead_lag_annotation = None
+    if lead_lag_pairs:
+        for pair in lead_lag_pairs:
+            lead_months = pair.get("lead_months", 6)
+            leading_item = next((s for s in series_list if s["series_id"] == pair["leading_series"]), None)
+            if leading_item and len(leading_item["raw_points"]) > lead_months:
+                raw_pts = leading_item["raw_points"]
+                reb_pts = leading_item["rebased_points"]
+                shifted_raw = [
+                    {"label": raw_pts[i + lead_months]["label"], "value": raw_pts[i]["value"]}
+                    for i in range(len(raw_pts) - lead_months)
+                ]
+                shifted_reb = [
+                    {"label": reb_pts[i + lead_months]["label"], "value": reb_pts[i]["value"]}
+                    for i in range(len(reb_pts) - lead_months)
+                ]
+                ghost_item = {
+                    "series_id": leading_item["series_id"] + "_shifted",
+                    "title": leading_item["title"] + f" (shifted +{lead_months // 3}Q)",
+                    "tone": leading_item["tone"],
+                    "unit": leading_item["unit"],
+                    "raw_latest_display": "",
+                    "rebased_latest_display": "",
+                    "raw_points": shifted_raw,
+                    "rebased_points": shifted_reb,
+                    "is_ghost": True,
+                }
+                series_list.append(ghost_item)
+            if lead_lag_annotation is None:
+                lead_lag_annotation = pair.get("annotation")
+
+    # Phase 4: compute runway annotation
+    runway_annotation = None
+    runway_metric = _build_metric(series_map, "excess_savings_runway_months")
+    burn_metric = _build_metric(series_map, "excess_savings_monthly_burn_rate")
+    if runway_metric and burn_metric and any(s["series_id"] == "excess_savings_cumulative_proxy" for s in series_list):
+        months = runway_metric["value"]
+        burn = burn_metric["value"]
+        if months > 0:
+            runway_annotation = {
+                "label": f"At current burn rate: ~{months:.0f} months of excess savings buffer remain (${burn:.1f}B/mo depletion rate)",
+                "tone": "positive" if months >= 12 else ("neutral" if months >= 6 else "caution"),
+            }
+        else:
+            runway_annotation = {
+                "label": "Excess savings buffer depleted — spending now fully reliant on current income and credit",
+                "tone": "caution",
+            }
+
     return {
         "title": title,
         "note": note,
         "default_mode": default_mode,
         "series": series_list,
+        "reference_lines": reference_lines or [],
+        "lead_lag_annotation": lead_lag_annotation,
+        "runway_annotation": runway_annotation,
+        "cohort_note": cohort_note,
     }
 
 
@@ -1404,6 +1567,9 @@ def _build_section(spec: dict[str, object], series_map: dict[str, list[dict[str,
             title=str(spec["chart_title"]),
             note=str(spec["chart_note"]),
             default_mode="rebased",
+            reference_lines=spec.get("chart_reference_lines"),
+            lead_lag_pairs=spec.get("chart_lead_lag_pairs"),
+            cohort_note=spec.get("chart_cohort_note"),
         ),
         "report_links": [
             {"id": report_id, "title": _report_title(report_id), "href": f"#report-{report_id}"}
