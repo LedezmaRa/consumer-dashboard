@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "dashboard",
-      "runtimeExecutable": "python3",
+      "runtimeExecutable": "/opt/homebrew/bin/python3.11",
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "data/processed"],
       "port": 8765
     }

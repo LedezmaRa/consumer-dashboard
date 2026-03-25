@@ -916,6 +916,68 @@ def _render_investor_guide(guide: dict[str, object]) -> str:
     """
 
 
+_SECTION_DISPLAY_NAMES: dict[str, str] = {
+    "fast-read": "Fast Read",
+    "labor": "Labor",
+    "inflation": "Inflation",
+    "spending": "Spending",
+    "stress": "Stress",
+    "distribution": "Distribution",
+    "housing": "Housing",
+    "psychology": "Psychology",
+    "investor-guide": "Investor Guide",
+}
+
+
+def _render_ai_reports_section(ai_reports: dict[str, str]) -> str:
+    """Render the AI-generated reports as a tabbed section."""
+    if not ai_reports:
+        return ""
+
+    tab_order = [
+        "fast-read", "labor", "inflation", "spending",
+        "stress", "distribution", "housing", "psychology", "investor-guide",
+    ]
+    available = [sid for sid in tab_order if sid in ai_reports]
+    if not available:
+        return ""
+
+    tabs_html = "".join(
+        f'<button class="ai-report-tab{" active" if i == 0 else ""}" '
+        f'data-tab="{escape(sid)}">'
+        f'{escape(_SECTION_DISPLAY_NAMES.get(sid, sid.title()))}'
+        f'</button>'
+        for i, sid in enumerate(available)
+    )
+
+    panels_html = "".join(
+        f'<div class="ai-report-panel{" active" if i == 0 else ""}" '
+        f'id="ai-report-{escape(sid)}">'
+        f'<div class="ai-report-body">'
+        + "".join(
+            f'<p>{escape(para.strip())}</p>'
+            for para in ai_reports[sid].split("\n\n")
+            if para.strip()
+        )
+        + f'</div></div>'
+        for i, sid in enumerate(available)
+    )
+
+    return f"""
+    <section class="ai-reports-section" id="ai-reports">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker">AI Analysis</p>
+          <h2>AI-Generated Reports</h2>
+        </div>
+        <p>Narrative briefings written by Claude, synthesizing the latest data from each dashboard section into plain-English investor analysis.</p>
+      </div>
+      <div class="ai-report-tabs">{tabs_html}</div>
+      <div class="ai-report-panels">{panels_html}</div>
+    </section>
+    """
+
+
 def _render_freshness_panel(freshness: list[dict[str, object]]) -> str:
     if not freshness:
         return ""
@@ -1027,7 +1089,7 @@ def _render_narrative_block(memo_ready: dict[str, object]) -> str:
     </section>"""
 
 
-def _render_html(payload: dict[str, object]) -> str:
+def _render_html(payload: dict[str, object], ai_reports: dict[str, str] | None = None) -> str:
     executive = payload.get("executive_snapshot", {})
     regime_info = executive.get("regime", {})
     nav = "".join(
@@ -1049,6 +1111,7 @@ def _render_html(payload: dict[str, object]) -> str:
         for index, report in enumerate(payload.get("report_library", []))
     )
     freshness_panel = _render_freshness_panel(payload.get("data_freshness", []))
+    ai_reports_section = _render_ai_reports_section(ai_reports or {})
     generated_at = escape(str(payload.get("generated_at", "")))
     title = escape(str(executive.get("title", "U.S. Consumer Dashboard")))
     headline = escape(str(executive.get("headline", "")))
@@ -2155,6 +2218,59 @@ def _render_html(payload: dict[str, object]) -> str:
       details .report-body {{ display: block !important; }}
       .page {{ width: 100%; margin: 0; }}
     }}
+    /* ======= AI Reports section ======= */
+    .ai-reports-section {{
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 36px 40px;
+      margin-top: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }}
+    .ai-report-tabs {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 24px 0 0;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 0;
+    }}
+    .ai-report-tab {{
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      padding: 8px 16px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }}
+    .ai-report-tab:hover {{ color: var(--ink); }}
+    .ai-report-tab.active {{
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }}
+    .ai-report-panels {{ margin-top: 28px; }}
+    .ai-report-panel {{ display: none; }}
+    .ai-report-panel.active {{ display: block; }}
+    .ai-report-body p {{
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--ink);
+      margin: 0 0 1.1em;
+      max-width: 820px;
+    }}
+    html.dark .ai-reports-section {{
+      background: rgba(30, 40, 42, 0.9);
+      border-color: rgba(255,255,255,0.08);
+    }}
+    html.dark .ai-report-tab {{ color: rgba(255,255,255,0.45); }}
+    html.dark .ai-report-tab.active {{ color: #7dcbe8; border-bottom-color: #7dcbe8; }}
+    html.dark .ai-report-body p {{ color: rgba(255,255,255,0.82); }}
   </style>
 </head>
 <body>
@@ -2196,6 +2312,8 @@ def _render_html(payload: dict[str, object]) -> str:
     {sections}
 
     {investor_guide}
+
+    {ai_reports_section}
 
     <section class="report-library" id="report-library">
       <div class="section-head">
@@ -2373,21 +2491,61 @@ def _render_html(payload: dict[str, object]) -> str:
         localStorage.setItem("consumer-dashboard-theme", isDark ? "dark" : "light");
       }});
     }})();
+
+    /* ======= AI Report tab switching ======= */
+    (function() {{
+      document.querySelectorAll(".ai-report-tab").forEach(function(tab) {{
+        tab.addEventListener("click", function() {{
+          var targetId = tab.getAttribute("data-tab");
+          document.querySelectorAll(".ai-report-tab").forEach(function(t) {{
+            t.classList.remove("active");
+          }});
+          document.querySelectorAll(".ai-report-panel").forEach(function(p) {{
+            p.classList.remove("active");
+          }});
+          tab.classList.add("active");
+          var panel = document.getElementById("ai-report-" + targetId);
+          if (panel) panel.classList.add("active");
+        }});
+      }});
+    }})();
   </script>
 </body>
 </html>"""
 
 
 def build_dashboard_html(settings) -> dict:
+    from consumer_dashboard.reporting.ai_reports import generate_ai_reports
+
     ensure_project_directories(settings)
     payload = build_dashboard_data(settings)
-    html = _render_html(payload)
+
+    ai_reports: dict[str, str] = {}
+    if getattr(settings, "anthropic_api_key", ""):
+        print("Generating AI reports via Claude API...")
+        try:
+            ai_reports = generate_ai_reports(payload, settings.anthropic_api_key)
+            print(f"  Generated {len(ai_reports)} section reports.")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  AI report generation failed: {exc}")
+    else:
+        print("ANTHROPIC_API_KEY not set — skipping AI reports.")
+
+    # Inject AI Reports nav link if reports were generated
+    if ai_reports and "navigation" in payload:
+        nav = list(payload["navigation"])
+        if not any(item.get("href") == "#ai-reports" for item in nav):
+            nav.append({"href": "#ai-reports", "label": "AI Reports"})
+        payload = {**payload, "navigation": nav}
+
+    html = _render_html(payload, ai_reports=ai_reports)
     output_path = settings.processed_dir / "consumer_dashboard.html"
     output_path.write_text(html, encoding="utf-8")
     status = {
         "status": "built",
         "output_path": str(output_path),
         "message": f"Built static HTML dashboard at {output_path}.",
+        "ai_reports_generated": list(ai_reports.keys()),
     }
     write_json(settings.processed_dir / "dashboard_html_status.json", status)
     return status

@@ -33,6 +33,7 @@ class Settings:
     http_retry_attempts: int = 3
     bea_api_key: str = ""
     bls_api_key: str = ""
+    anthropic_api_key: str = ""
     enabled_sources: Tuple[str, ...] = ()
 
     @classmethod
@@ -40,7 +41,7 @@ class Settings:
         root = Path(
             os.environ.get("PROJECT_ROOT", str(project_root or Path.cwd()))
         ).expanduser().resolve()
-        load_dotenv(root / ".env", override=False)
+        load_dotenv(root / ".env", override=True)
         data_dir = Path(os.environ.get("DATA_DIR", str(root / "data"))).expanduser().resolve()
         manifest_path = Path(
             os.environ.get("CONSUMER_MANIFEST_PATH", str(root / "consumer_reports_manifest.csv"))
@@ -58,5 +59,6 @@ class Settings:
             http_retry_attempts=int(os.environ.get("HTTP_RETRY_ATTEMPTS", "3")),
             bea_api_key=os.environ.get("BEA_API_KEY", ""),
             bls_api_key=os.environ.get("BLS_API_KEY", ""),
+            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
             enabled_sources=_split_csv(enabled),
         )
