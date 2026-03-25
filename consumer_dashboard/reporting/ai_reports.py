@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import urllib.request
 import urllib.error
+from datetime import date
 from typing import Any
 
 
@@ -12,12 +13,17 @@ from typing import Any
 # Prompt builders
 # ---------------------------------------------------------------------------
 
-_SYSTEM_PROMPT = (
-    "You are a senior macro-economic analyst writing concise investor briefings. "
-    "Write in clear, confident prose. No bullet lists — flowing paragraphs only. "
-    "Be direct about what the data says, what it means for consumers, and what "
-    "investors should watch. 3–4 paragraphs max. Do not use markdown headers."
-)
+def _build_system_prompt() -> str:
+    today = date.today().strftime("%B %d, %Y")
+    return (
+        f"Today's date is {today}. "
+        "You are a senior macro-economic analyst writing concise investor briefings. "
+        "Write in clear, confident prose. No bullet lists — flowing paragraphs only. "
+        "Be direct about what the data says, what it means for consumers, and what "
+        "investors should watch. 3–4 paragraphs max. Do not use markdown headers. "
+        "All forward-looking statements must be anchored to the current date above — "
+        "do not reference past dates as if they are in the future."
+    )
 
 _SECTION_PROMPTS: dict[str, str] = {
     "fast-read": (
@@ -244,10 +250,11 @@ def _generate_one(
     api_key: str,
     reports: dict[str, str],
 ) -> None:
+    today = date.today().strftime("%B %d, %Y")
     prompt = _SECTION_PROMPTS.get(section_id, _DEFAULT_PROMPT)
-    user_message = f"{prompt}\n\nData:\n{summary}"
+    user_message = f"Report date: {today}\n\n{prompt}\n\nData:\n{summary}"
     try:
-        text = _call_claude(api_key, _SYSTEM_PROMPT, user_message)
+        text = _call_claude(api_key, _build_system_prompt(), user_message)
         reports[section_id] = text
     except Exception as exc:  # noqa: BLE001
         reports[section_id] = f"[Report unavailable: {exc}]"
