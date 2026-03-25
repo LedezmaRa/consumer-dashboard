@@ -2515,21 +2515,31 @@ def _render_html(payload: dict[str, object], ai_reports: dict[str, str] | None =
 
 
 def build_dashboard_html(settings) -> dict:
+    import json as _json
     from consumer_dashboard.reporting.ai_reports import generate_ai_reports
 
     ensure_project_directories(settings)
     payload = build_dashboard_data(settings)
 
+    cache_path = settings.processed_dir / "ai_reports.json"
     ai_reports: dict[str, str] = {}
+
     if getattr(settings, "anthropic_api_key", ""):
         print("Generating AI reports via Claude API...")
         try:
             ai_reports = generate_ai_reports(payload, settings.anthropic_api_key)
-            print(f"  Generated {len(ai_reports)} section reports.")
+            cache_path.write_text(_json.dumps(ai_reports, indent=2), encoding="utf-8")
+            print(f"  Generated {len(ai_reports)} section reports (cached to ai_reports.json).")
         except Exception as exc:  # noqa: BLE001
             print(f"  AI report generation failed: {exc}")
+    elif cache_path.exists():
+        try:
+            ai_reports = _json.loads(cache_path.read_text(encoding="utf-8"))
+            print(f"  Loaded {len(ai_reports)} cached AI reports from ai_reports.json.")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  Could not load cached AI reports: {exc}")
     else:
-        print("ANTHROPIC_API_KEY not set — skipping AI reports.")
+        print("ANTHROPIC_API_KEY not set and no cached reports found — skipping AI reports.")
 
     # Inject AI Reports nav link if reports were generated
     if ai_reports and "navigation" in payload:

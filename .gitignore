@@ -1,6 +1,8 @@
 # Downloaded & processed data — regenerate with the pipeline
 data/raw/
-data/processed/
+data/processed/*
+# Keep the cached AI reports so GitHub Actions can use them without an API key
+!data/processed/ai_reports.json
 
 # Python
 __pycache__/
