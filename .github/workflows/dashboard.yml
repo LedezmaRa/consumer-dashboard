@@ -44,6 +44,7 @@ jobs:
           CONSUMER_MANIFEST_PATH=${{ github.workspace }}/consumer_reports_manifest.csv
           BEA_API_KEY=${{ secrets.BEA_API_KEY }}
           BLS_API_KEY=${{ secrets.BLS_API_KEY }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
           HTTP_TIMEOUT_SECONDS=60
           HTTP_RETRY_ATTEMPTS=3
           ENABLED_SOURCES=bea,bls,census,federal_reserve_board,new_york_fed,dol,university_of_michigan
