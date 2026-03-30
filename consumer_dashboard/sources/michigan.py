@@ -5,8 +5,7 @@ alternative to the Michigan SCA fetchchart.php endpoint which returns HTML.
 
 FRED series used:
   UMCSENT  = University of Michigan: Consumer Sentiment (overall index)
-  MICH     = University of Michigan: Inflation Expectation (5-10 Year ahead)
-  MICH1YR  = University of Michigan: Inflation Expectation (1 Year ahead)
+  MICH     = University of Michigan: Inflation Expectation (1 Year ahead, median)
 
 Data is made available by the University of Michigan Survey of Consumers
 via FRED (Federal Reserve Bank of St. Louis). Non-commercial research use.
@@ -30,7 +29,7 @@ FRED_CSV_BASE = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 # FRED series ID → canonical series_id used by the normalize / metrics layers
 FRED_SERIES = {
     "UMCSENT": "michigan_sentiment_index",
-    "MICH": "michigan_inflation_expectations_5y",
+    "MICH": "michigan_inflation_expectations_1y",
 }
 
 

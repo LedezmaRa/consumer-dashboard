@@ -36,9 +36,9 @@
       "updated_at": "2026-03-23T18:52:43.588429+00:00"
     },
     "university_of_michigan": {
-      "message": "Normalized 1246 Michigan SCA observations from 2 raw artifact(s).",
+      "message": "Normalized 1248 Michigan SCA observations from 2 raw artifact(s).",
       "status": "normalized",
-      "updated_at": "2026-03-24T19:33:03.978456+00:00"
+      "updated_at": "2026-03-30T03:56:45.137747+00:00"
     }
   }
 }

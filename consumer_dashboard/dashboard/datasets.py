@@ -398,20 +398,18 @@ SECTION_SPECS = [
         "intro": (
             "Hard data tells you what happened. Sentiment tells you what happens next. "
             "Consumer confidence and inflation expectations consistently lead actual spending by one to two quarters. "
-            "Unanchored 5-year inflation expectations are also a direct policy risk — the Fed watches them as a credibility gauge."
+            "When 1-year inflation expectations become unanchored above 3.5%, it signals households are pricing in persistent inflation — a leading indicator of wage demands and Fed policy response."
         ),
         "card_series_ids": [
             "michigan_sentiment_index",
             "michigan_inflation_expectations_1y",
-            "michigan_inflation_expectations_5y",
         ],
         "chart_series_ids": [
             "michigan_sentiment_index",
             "michigan_inflation_expectations_1y",
-            "michigan_inflation_expectations_5y",
         ],
         "chart_title": "Consumer Psychology Dashboard",
-        "chart_note": "Sentiment index (left scale, rebased) vs inflation expectations. When the gap between short and long-run expectations widens, it signals anchoring risk.",
+        "chart_note": "Sentiment index (left scale, rebased) vs 1-year inflation expectations. When sentiment falls while expectations rise, households are anticipating a cost-of-living squeeze — a reliable leading indicator of spending slowdowns.",
         "chart_reference_lines": [
             {"value": 2.0, "label": "Fed Target", "style": "solid", "color_class": "ref-target"},
             {"value": 3.5, "label": "Unanchored Risk", "style": "dashed", "color_class": "ref-warning"},
@@ -683,18 +681,16 @@ REPORT_SPECS = [
         "series_ids": [
             "michigan_sentiment_index",
             "michigan_inflation_expectations_1y",
-            "michigan_inflation_expectations_5y",
         ],
         "chart_series_ids": [
             "michigan_sentiment_index",
             "michigan_inflation_expectations_1y",
-            "michigan_inflation_expectations_5y",
         ],
         "thesis": "Michigan sentiment is one of the longest-running consumer surveys and has historically led spending inflections by one to three months.",
         "compare_with": ["jobs_report", "real_spending_metrics", "inflation_metrics"],
         "reasoning_tips": [
             "Look at the gap between current conditions and expectations. When expectations fall faster than current conditions, the consumer is front-running deterioration.",
-            "5-year inflation expectations above 3.5% historically correlate with Fed policy hawkishness even when current inflation is cooling.",
+            "1-year inflation expectations above 3.5% signal households are pricing in persistent inflation — a leading indicator of wage demands and spending pull-forward.",
             "Sentiment can diverge from hard spending data for extended periods. Use it as a leading indicator, not a coincident one.",
         ],
     },
@@ -1698,7 +1694,7 @@ def _build_memo_ready(
         "consumer_credit_revolving_yoy_pct",
         "initial_jobless_claims_4_week_average",
         "michigan_sentiment_index",
-        "michigan_inflation_expectations_5y",
+        "michigan_inflation_expectations_1y",
         "cpi_shelter_yoy_pct",
         "cpi_services_ex_energy_yoy_pct",
         "shelter_affordability_squeeze",
