@@ -28,7 +28,10 @@ def _build_system_prompt() -> str:
         "2. USE COMPUTED METRICS: The data includes pre-computed derived metrics "
         "(e.g., real_wage_growth, cpi_headline_yoy_pct). Always use these computed values "
         "directly. Do not attempt to re-derive or re-calculate them from components — "
-        "your arithmetic may conflict with the authoritative computed figure.\n"
+        "your arithmetic may conflict with the authoritative computed figure. "
+        "In particular: real_wage_growth is ALREADY net of inflation — a value of 1.4% "
+        "means wages are beating inflation by 1.4 percentage points. Never compare "
+        "real_wage_growth to CPI; that double-counts inflation.\n"
         "3. SEPARATE CURRENT FROM FORWARD: Distinguish sharply between (a) what the data "
         "currently shows — stated in present tense with the metric value — and (b) what "
         "might happen in the future — stated in conditional language (e.g., 'if X continues, "
@@ -40,7 +43,13 @@ def _build_system_prompt() -> str:
         "severity (e.g., 91st percentile = historically elevated). Do not characterize a "
         "metric as extreme without this support.\n"
         "6. TIME ANCHORING: All forward-looking statements must be anchored to today's date. "
-        "Do not reference past dates as if they are in the future."
+        "Do not reference past dates as if they are in the future. When framing the current "
+        "period, derive the correct calendar quarter from today's date: January–March = Q1, "
+        "April–June = Q2, July–September = Q3, October–December = Q4.\n"
+        "7. NO DATA, NO CLAIM: If the data block shows 'DATA NOT AVAILABLE' or contains no "
+        "metrics, explicitly state that current dashboard data is not available for this "
+        "section rather than drawing on general knowledge or prior training data. Do not "
+        "fabricate specific numeric values that are not present in the provided data."
     )
 
 
@@ -79,9 +88,13 @@ _SECTION_PROMPTS: dict[str, str] = {
         "before interpreting it. (2) Distinguish between nominal and real spending — "
         "use the real figures as the authoritative measure of volume. (3) Connect income, "
         "savings rate, and outlays: if spending is growing faster than income, identify "
-        "whether savings or credit is funding the gap. (4) Assess retail sales and housing "
-        "activity. (5) Conclude with a conditional forward view tied to specific metrics "
-        "the reader should monitor."
+        "whether savings or credit is funding the gap. Use the 'Spending vs Income Gap' "
+        "metric directly if present. (4) CRITICAL: real_wage_growth is ALREADY adjusted "
+        "for inflation — it represents the net purchasing power gain after subtracting "
+        "CPI. Do NOT compare real_wage_growth to CPI; that would double-count inflation. "
+        "A positive real_wage_growth means wages ARE beating inflation by that amount. "
+        "(5) Assess retail sales and housing activity. (6) Conclude with a conditional "
+        "forward view tied to specific metric thresholds the reader should monitor."
     ),
     "stress": (
         "Write an investor briefing on US consumer financial stress using the metrics below. "
@@ -96,13 +109,18 @@ _SECTION_PROMPTS: dict[str, str] = {
     ),
     "distribution": (
         "Write an investor briefing on US wealth and income distribution using the metrics "
-        "below. Structure your analysis as follows: (1) State each distributional metric's "
-        "value and period before interpreting it. (2) Use the wealth concentration ratio "
-        "and bottom-50% net worth figures as the primary lens. (3) Connect distribution "
-        "to aggregate demand: explain how the wealth split affects spending resilience "
-        "at the macro level. (4) Distinguish between top-end wealth effects (asset prices, "
-        "equities) and bottom-end income effects (wages, transfers). (5) Use conditional "
-        "language for any forward-looking claim about consumption."
+        "below. IMPORTANT: If the data block shows 'DATA NOT AVAILABLE' or contains no "
+        "metrics, do NOT fabricate specific values — instead, state explicitly that "
+        "Distributional Financial Accounts (DFA) data is not yet available in the current "
+        "dashboard build, explain briefly what DFA data covers (wealth share by income "
+        "percentile, top-1% vs bottom-50% net worth, concentration ratios), and describe "
+        "qualitatively why it matters for interpreting aggregate consumer health. "
+        "If data IS present, structure your analysis as follows: (1) State each "
+        "distributional metric's value and period before interpreting it. (2) Use the "
+        "wealth concentration ratio and bottom-50% net worth figures as the primary lens. "
+        "(3) Connect distribution to aggregate demand. (4) Distinguish between top-end "
+        "wealth effects and bottom-end income effects. (5) Use conditional language for "
+        "any forward-looking claim."
     ),
     "housing": (
         "Write an investor briefing on the US housing market using the metrics below. "
@@ -149,15 +167,29 @@ def _build_section_summary(section: dict[str, Any]) -> str:
     lines.append(f"Section: {title}")
     lines.append("")
 
-    # --- Cards: current value, delta, period, tone, percentile, trend, why ---
+    # --- Empty-data guard: if no cards and no chart series, say so explicitly ---
     cards = section.get("cards", [])
-    if cards:
+    chart_series = section.get("chart", {}).get("series", [])
+    non_empty_cards = [c for c in cards if c]
+    non_empty_series = [s for s in chart_series if s and (s.get("raw_points") or [])]
+    if not non_empty_cards and not non_empty_series:
+        lines.append("DATA NOT AVAILABLE")
+        lines.append(
+            "No dashboard metrics are currently loaded for this section. "
+            "Do not fabricate specific numeric values. Acknowledge the data gap explicitly."
+        )
+        return "\n".join(lines)
+
+    # --- Cards: current value, delta, period, tone, percentile, trend, why ---
+    if non_empty_cards:
         lines.append("CURRENT METRICS:")
-        for card in cards:
+        for card in non_empty_cards:
             if not card:
                 continue
             label = card.get("title") or card.get("series_id", "")
-            value = card.get("value_display") or str(card.get("value", ""))
+            value_display = card.get("value_display") or str(card.get("value", ""))
+            raw_value = card.get("value")
+            unit = card.get("unit", "")
             period = card.get("period_label", "")
             delta = card.get("delta_display", "")
             tone = card.get("tone", "")
@@ -165,7 +197,15 @@ def _build_section_summary(section: dict[str, Any]) -> str:
             pct_rank = card.get("percentile_rank")
             why = card.get("why_it_matters", "")
 
-            line = f"  {label}: {value}"
+            line = f"  {label}: {value_display}"
+            # For large dollar-level series stored in millions (BEA, Fed convention),
+            # convert to trillions so the AI receives an unambiguous human-readable value.
+            _millions_units = {"current dollars; level", "millions_of_dollars", "millions of dollars"}
+            if raw_value is not None and unit and unit.lower() in _millions_units and abs(raw_value) > 1_000:
+                trillions = raw_value / 1_000_000
+                line += f" [={trillions:.2f} trillion USD; source unit: millions of dollars]"
+            elif raw_value is not None and unit:
+                line += f" [raw unit: {unit}]"
             if period:
                 line += f" ({period})"
             if delta:
@@ -191,12 +231,10 @@ def _build_section_summary(section: dict[str, Any]) -> str:
                 lines.append(f"    recent trend: {hist_str}")
 
     # --- Chart series: labeled with series_id and last 3 values ---
-    chart = section.get("chart", {})
-    chart_series = chart.get("series", [])
-    if chart_series:
+    if non_empty_series:
         lines.append("")
         lines.append("CHART SERIES (computed metrics):")
-        for series in chart_series:
+        for series in non_empty_series:
             if not series:
                 continue
             # Use title then series_id — the bug was using "label" which doesn't exist
